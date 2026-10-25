@@ -112,3 +112,18 @@ async def test_expires_after_travel_date():
 
 def test_poll_interval_has_floor():
     assert Settings(_env_file=None, poll_interval_sec=1).poll_interval_sec == 10
+
+
+@pytest.mark.asyncio
+async def test_mock_train_numbers_are_stable_across_search_times():
+    from app.models import Passengers, SearchRequest
+    from app.providers.mock import MockProvider
+
+    p = MockProvider(seed=1)
+    early = await p.search(SearchRequest(dep="서울", arr="부산", date=TOMORROW, time="060000"), Passengers())
+    late = await p.search(SearchRequest(dep="서울", arr="부산", date=TOMORROW, time="080000"), Passengers())
+    early_times = {t.train_no: t.dep_time for t in early}
+    for t in late:
+        if t.train_no in early_times:
+            assert early_times[t.train_no] == t.dep_time
+    assert len(early) == 10

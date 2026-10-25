@@ -17,16 +17,21 @@ class MockProvider(TrainProvider):
         self.rng = random.Random(seed)
 
     async def search(self, req: SearchRequest, passengers: Passengers) -> list[TrainInfo]:
+        # 05:00부터 30분 간격으로 고정 시간표를 만든다. 실제 코레일처럼 열차 번호가
+        # 조회 시각과 무관하게 항상 같은 열차를 가리켜야 감시 로직을 제대로 검증할 수 있다
+        first = datetime.strptime("0500", "%H%M")
+        req_time = datetime.strptime(req.time[:4], "%H%M")
         trains = []
-        start = datetime.strptime(req.time[:4], "%H%M")
-        for i in range(10):
-            dep = start + timedelta(minutes=30 * i)
-            if dep.day != start.day:
+        for slot in range(38):  # 05:00 ~ 23:30
+            dep = first + timedelta(minutes=30 * slot)
+            if dep < req_time:
+                continue
+            if len(trains) == 10:  # 코레일처럼 한 번에 최대 10개
                 break
             arr = dep + timedelta(hours=2, minutes=40)
             trains.append(
                 TrainInfo(
-                    train_no=f"{101 + i * 2:03d}",
+                    train_no=f"{101 + slot * 2:03d}",
                     train_type_name="KTX",
                     dep_name=req.dep,
                     arr_name=req.arr,
