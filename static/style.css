@@ -50,3 +50,10 @@ th, td { padding: 8px 6px; border-bottom: 1px solid var(--line); text-align: cen
 .reserved-box { margin-top: 6px; padding: 10px; border-radius: 8px; background: color-mix(in srgb, var(--ok) 12%, transparent); }
 .reserved-box strong { color: var(--ok); }
 .meta { font-size: .8rem; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip { font-size: .8rem; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.chip.on { border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { display: inline-block; font: inherit; padding: 8px 12px; border-radius: 8px; text-decoration: none; }
+.btn.kakao { background: #fee500; color: #191919; }
+.msg.ok { color: var(--ok); }

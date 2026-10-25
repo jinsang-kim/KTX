@@ -34,7 +34,53 @@ let lastTrains = {}; // train_no → TrainInfo
   if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
   refreshWatches();
   setInterval(refreshWatches, 3000);
+  refreshNotify();
+  if (new URLSearchParams(location.search).get("kakao") === "connected") {
+    notifyMsg("카카오톡이 연결되었습니다. '테스트 알림 보내기'로 확인해 보세요.", true);
+    history.replaceState(null, "", "/");
+  }
 })();
+
+// ---------- 알림 설정 ----------
+const CHANNEL_LABEL = { kakao: "카카오톡", email: "Gmail", telegram: "텔레그램" };
+
+function notifyMsg(text, ok = false) {
+  $("#notify-msg").textContent = text;
+  $("#notify-msg").classList.toggle("ok", ok);
+}
+
+async function refreshNotify() {
+  const { channels, kakao_configured } = await api("/notify/status");
+  $("#notify-status").innerHTML = Object.entries(channels)
+    .map(([k, on]) => `<span class="chip ${on ? "on" : ""}">${CHANNEL_LABEL[k]} ${on ? "켜짐" : "꺼짐"}</span>`)
+    .join("");
+  // 카카오는 REST API 키가 설정된 경우에만 연결 버튼 노출
+  $("#kakao-connect").hidden = !kakao_configured || channels.kakao;
+  $("#kakao-connect").href = `/api/kakao/login?token=${encodeURIComponent(appToken)}`;
+  $("#kakao-disconnect").hidden = !channels.kakao;
+}
+
+$("#notify-test").addEventListener("click", async () => {
+  notifyMsg("보내는 중...");
+  try {
+    const results = await api("/notify/test", { method: "POST" });
+    const failed = Object.entries(results).filter(([, r]) => r !== "ok");
+    notifyMsg(
+      failed.length
+        ? failed.map(([k, r]) => `${CHANNEL_LABEL[k]}: ${r}`).join(" / ")
+        : `전송 완료: ${Object.keys(results).map((k) => CHANNEL_LABEL[k]).join(", ")}`,
+      !failed.length
+    );
+  } catch (err) {
+    notifyMsg(err.message);
+  }
+});
+
+$("#kakao-disconnect").addEventListener("click", async () => {
+  await api("/kakao", { method: "DELETE" });
+  notifyMsg("카카오톡 연결을 해제했습니다.", true);
+  refreshNotify();
+});
 
 // ---------- 조회 ----------
 $("#search-form").addEventListener("submit", async (e) => {
