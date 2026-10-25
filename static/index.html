@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KTX 빈자리 예약 도우미</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🚄 KTX 빈자리 예약 도우미</h1>
+    <span id="provider-badge" class="badge"></span>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1. 열차 조회</h2>
+      <form id="search-form" class="grid">
+        <label>출발역 <input name="dep" list="stations" value="서울" required /></label>
+        <label>도착역 <input name="arr" list="stations" value="부산" required /></label>
+        <label>날짜 <input name="date" type="date" required /></label>
+        <label>시각 이후 <input name="time" type="time" value="06:00" required /></label>
+        <label>성인 <input name="adults" type="number" min="1" max="9" value="1" /></label>
+        <button type="submit">조회</button>
+      </form>
+      <datalist id="stations"></datalist>
+      <p id="search-msg" class="msg"></p>
+      <table id="train-table" hidden>
+        <thead>
+          <tr><th>감시</th><th>열차</th><th>출발</th><th>도착</th><th>일반실</th><th>특실</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>2. 감시 & 자동 예약</h2>
+      <p class="hint">위에서 원하는 열차를 체크하세요. 체크한 순서가 예약 우선순위입니다.</p>
+      <div class="grid">
+        <label>좌석
+          <select id="seat-option">
+            <option value="GENERAL_FIRST">일반실 우선</option>
+            <option value="GENERAL_ONLY">일반실만</option>
+            <option value="SPECIAL_FIRST">특실 우선</option>
+            <option value="SPECIAL_ONLY">특실만</option>
+          </select>
+        </label>
+        <button id="start-watch" disabled>선택한 열차 감시 시작</button>
+      </div>
+      <p id="watch-msg" class="msg"></p>
+    </section>
+
+    <section class="card">
+      <h2>3. 감시 현황</h2>
+      <div id="watch-list"><p class="hint">감시 중인 작업이 없습니다.</p></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
